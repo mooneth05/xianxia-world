@@ -2,33 +2,371 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>仙侠ワールド - 武侠・仙侠小説プラットフォーム</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>仙侠ワールド</title>
 <meta name="description" content="仙侠小説リーダー - 日本語対応の小説プラットフォーム">
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#111;color:#f0f0f0;font-family:sans-serif;}
-  #root{min-height:100vh;}
-  .loading{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;background:#111;color:#e8a020;}
-  .loading-spinner{font-size:40px;animation:spin 1s linear infinite;}
-  @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:#111;color:#f0f0f0;font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:#333;border-radius:2px;}
+.page{display:none;min-height:100vh;padding-bottom:70px;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes slideLeft{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.fade-in{animation:fadeIn .3s ease forwards;}
+/* HEADER */
+.header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(17,17,17,.97);backdrop-filter:blur(12px);border-bottom:1px solid #1e1e1e;}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;}
+.logo{display:flex;align-items:center;gap:8px;cursor:pointer;text-decoration:none;}
+.logo-char{font-size:28px;line-height:1;color:#e8a020;}
+.logo-text{font-size:10px;color:#666;}
+.header-icons{display:flex;gap:16px;align-items:center;}
+.icon-btn{background:none;border:none;color:#ccc;cursor:pointer;font-size:20px;position:relative;padding:4px;}
+.badge{position:absolute;top:-4px;right:-4px;background:#e8a020;color:#000;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;}
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(17,17,17,.97);backdrop-filter:blur(12px);border-top:1px solid #1e1e1e;display:flex;padding:6px 0;}
+.nav-btn{flex:1;background:none;border:none;cursor:pointer;padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:2px;}
+.nav-icon{font-size:20px;}
+.nav-label{font-size:10px;color:#666;font-family:'Noto Sans JP',sans-serif;}
+.nav-btn.active .nav-label{color:#e8a020;font-weight:600;}
+/* MAIN CONTENT */
+.main-content{padding-top:60px;}
+/* HERO SLIDER */
+.slider-wrap{padding:12px 16px;position:relative;}
+.slide{border-radius:12px;overflow:hidden;position:relative;aspect-ratio:16/9;min-height:180px;display:none;}
+.slide.active{display:block;animation:fadeIn .4s ease;}
+.slide-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.slide-gradient{position:absolute;inset:0;}
+.slide-cover{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:90px;height:130px;border-radius:6px;overflow:hidden;box-shadow:-6px 0 20px rgba(0,0,0,.8);}
+.slide-cover img{width:100%;height:100%;object-fit:cover;}
+.slide-content{position:absolute;bottom:0;left:0;right:0;padding:14px 14px 12px;max-width:65%;}
+.slide-badges{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap;}
+.badge-rating{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);padding:2px 8px;border-radius:20px;font-size:11px;color:#fff;}
+.badge-status-ongoing{background:rgba(30,150,80,.3);border:1px solid rgba(30,150,80,.5);padding:2px 8px;border-radius:20px;font-size:11px;color:#4ade80;}
+.badge-status-done{background:rgba(96,165,250,.2);border:1px solid rgba(96,165,250,.4);padding:2px 8px;border-radius:20px;font-size:11px;color:#60a5fa;}
+.slide-title{font-size:18px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+.slide-desc{font-size:12px;color:rgba(255,255,255,.7);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:10px;}
+.btn-read-now{background:#e8a020;border:none;color:#000;padding:7px 18px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+/* SLIDER CONTROLS */
+.slider-prev,.slider-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.5);border:none;color:#fff;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;z-index:5;}
+.slider-prev{left:20px;}.slider-next{right:20px;}
+.slider-dots{display:flex;justify-content:center;gap:6px;margin-top:8px;}
+.dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.3);border:none;cursor:pointer;padding:0;transition:all .3s;}
+.dot.active{width:18px;background:#e8a020;}
+/* SECTION */
+.section{margin-bottom:24px;}
+.section-header{display:flex;justify-content:space-between;align-items:center;padding:0 16px;margin-bottom:10px;}
+.section-title{font-size:18px;font-weight:700;color:#f0f0f0;}
+.see-all{background:none;border:none;color:#999;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+/* HORIZONTAL SCROLL */
+.h-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 16px 8px;scrollbar-width:none;}
+.h-scroll::-webkit-scrollbar{display:none;}
+/* NOVEL CARD */
+.novel-card{flex:0 0 auto;width:130px;cursor:pointer;}
+.novel-cover-wrap{position:relative;border-radius:8px;overflow:hidden;margin-bottom:7px;box-shadow:0 4px 12px rgba(0,0,0,.6);}
+.novel-cover-wrap img{width:130px;height:175px;object-fit:cover;display:block;}
+.novel-status-bar{position:absolute;top:0;left:0;right:0;background:rgba(0,0,0,.65);padding:3px 6px;}
+.novel-status-bar span{font-size:10px;font-weight:500;}
+.status-ongoing{color:#4ade80;}.status-done{color:#60a5fa;}
+.novel-rank{position:absolute;bottom:8px;left:8px;font-size:26px;font-weight:900;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.9),1px 1px 0 #000;line-height:1;}
+.novel-timer{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.7);border-radius:5px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.novel-badge{position:absolute;top:22px;left:0;padding:2px 6px;font-size:9px;font-weight:700;color:#fff;border-radius:0 3px 3px 0;}
+.badge-hot{background:#dc2626;}.badge-top{background:#7c3aed;}.badge-new{background:#059669;}.badge-classic{background:#7c3aed;}.badge-premium{background:#d97706;}
+.novel-rating{font-size:11px;color:#aaa;margin-bottom:2px;}
+.novel-title{font-size:12px;font-weight:600;color:#f0f0f0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* ANNOUNCEMENT */
+.announce-item{display:flex;align-items:center;gap:12px;background:#1a1a1a;border-radius:10px;padding:12px 14px;margin:0 16px 8px;cursor:pointer;}
+.announce-thumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;}
+.announce-thumb img{width:100%;height:100%;object-fit:cover;}
+.announce-title{font-size:13px;font-weight:500;color:#e0e0e0;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.announce-time{font-size:11px;color:#666;margin-top:3px;}
+/* GENRE GRID */
+.genre-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px;}
+.genre-card{background:#1a1a1a;border-radius:10px;padding:14px 10px;cursor:pointer;text-align:center;}
+.genre-icon{font-size:24px;margin-bottom:6px;}
+.genre-name{font-size:13px;font-weight:600;color:#e0e0e0;margin-bottom:2px;}
+.genre-count{font-size:11px;color:#666;}
+/* NOVEL DETAIL */
+.detail-hero{position:relative;width:100%;height:240px;overflow:hidden;}
+.detail-hero-bg{width:100%;height:100%;object-fit:cover;filter:blur(10px) brightness(.4);transform:scale(1.1);}
+.detail-back{position:absolute;top:16px;left:16px;background:rgba(0,0,0,.6);border:none;color:#fff;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;}
+.detail-body{padding:0 16px;margin-top:-60px;position:relative;z-index:1;}
+.detail-cover-row{display:flex;gap:14px;margin-bottom:16px;}
+.detail-cover{width:100px;height:140px;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.8);flex-shrink:0;}
+.detail-cover img{width:100%;height:100%;object-fit:cover;}
+.detail-info{flex:1;padding-top:55px;}
+.detail-title{font-size:17px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:3px;text-shadow:0 1px 4px rgba(0,0,0,.8);}
+.detail-orig{font-size:13px;color:#aaa;margin-bottom:8px;}
+.detail-badges{display:flex;gap:6px;flex-wrap:wrap;}
+.detail-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:#2a2a2a;border-radius:10px;overflow:hidden;margin-bottom:16px;}
+.stat-item{background:#1a1a1a;padding:12px 8px;text-align:center;}
+.stat-val{font-size:14px;font-weight:700;color:#f0f0f0;}
+.stat-lbl{font-size:10px;color:#666;margin-top:2px;}
+.detail-cta{display:flex;gap:10px;margin-bottom:20px;}
+.btn-read{flex:1;background:#e8a020;border:none;color:#000;padding:13px;border-radius:25px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+.btn-heart{width:50px;background:#222;border:1px solid #333;color:#aaa;border-radius:25px;font-size:18px;cursor:pointer;}
+.btn-heart.active{background:rgba(232,160,32,.15);border-color:#e8a020;color:#e8a020;}
+.detail-tabs{display:flex;border-bottom:1px solid #2a2a2a;margin-bottom:16px;}
+.tab-btn{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:#666;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.tab-btn.active{border-bottom-color:#e8a020;color:#e8a020;}
+.tab-content{display:none;animation:fadeIn .2s ease;}
+.tab-content.active{display:block;}
+.synopsis{font-size:14px;color:#ccc;line-height:1.8;margin-bottom:14px;}
+.tag-list{display:flex;gap:8px;flex-wrap:wrap;}
+.tag{background:#222;border:1px solid #333;color:#aaa;padding:4px 12px;border-radius:20px;font-size:12px;}
+.chapter-item{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:#1a1a1a;border-radius:8px;margin-bottom:6px;cursor:pointer;}
+.ch-left{display:flex;align-items:center;gap:10px;}
+.ch-num{font-size:12px;color:#888;min-width:40px;}
+.ch-title{font-size:14px;color:#e0e0e0;}
+.ch-arrow{color:#555;font-size:16px;}
+/* CHAPTER READER */
+.reader-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,13,.97);border-bottom:1px solid #2a2a2a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px);}
+.reader-back{background:none;border:none;color:#fff;cursor:pointer;font-size:22px;padding:0;}
+.reader-title-wrap{text-align:center;}
+.reader-novel{font-size:13px;font-weight:600;color:#e0e0e0;}
+.reader-ch{font-size:11px;color:#666;}
+.font-controls{display:flex;gap:6px;}
+.font-btn{background:#222;border:none;color:#aaa;width:30px;height:30px;border-radius:6px;cursor:pointer;}
+.reader-body{max-width:680px;margin:0 auto;padding:80px 20px 80px;}
+.reader-ch-title{font-size:18px;font-weight:700;color:#e8a020;text-align:center;margin-bottom:28px;}
+.reader-para{line-height:1.95;color:#ccc;margin-bottom:1.6em;font-family:'Noto Serif JP',serif;text-indent:2em;}
+.reader-nav{display:flex;gap:12px;margin-top:32px;}
+.nav-prev,.nav-next{flex:1;padding:12px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;border:1px solid #333;}
+.nav-prev{background:#222;color:#aaa;}
+.nav-next{background:#e8a020;border-color:#e8a020;color:#000;font-weight:600;}
+.nav-prev:disabled,.nav-next:disabled{opacity:.3;cursor:default;}
+/* SEARCH */
+.search-header{position:fixed;top:0;left:0;right:0;z-index:100;background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:12px 16px;display:flex;gap:10px;align-items:center;}
+.search-input-wrap{flex:1;display:flex;align-items:center;background:#222;border-radius:20px;padding:8px 14px;gap:8px;}
+.search-input{flex:1;background:none;border:none;color:#e0e0e0;font-size:14px;outline:none;font-family:'Noto Sans JP',sans-serif;}
+.search-result{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #1e1e1e;cursor:pointer;}
+.search-result-cover{width:50px;height:70px;border-radius:6px;overflow:hidden;flex-shrink:0;}
+.search-result-cover img{width:100%;height:100%;object-fit:cover;}
+.search-title{font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:2px;}
+.search-meta{font-size:12px;color:#777;margin-bottom:4px;}
+.search-desc{font-size:12px;color:#555;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.chip-btn{display:inline-block;background:#1a1a1a;border:1px solid #2a2a2a;color:#aaa;padding:7px 14px;border-radius:20px;font-size:13px;margin:0 8px 8px 0;cursor:pointer;font-family:'Noto Sans JP',sans-serif;}
+/* LIBRARY */
+.lib-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #1e1e1e;}
+.lib-cover{width:60px;height:84px;border-radius:6px;overflow:hidden;flex-shrink:0;cursor:pointer;}
+.lib-cover img{width:100%;height:100%;object-fit:cover;}
+.lib-info{flex:1;cursor:pointer;}
+.lib-title{font-size:14px;font-weight:600;color:#e0e0e0;margin-bottom:2px;}
+.lib-author{font-size:12px;color:#777;margin-bottom:6px;}
+.lib-remove{background:none;border:none;color:#555;cursor:pointer;font-size:18px;align-self:center;}
+/* LOADING */
+.loading-spinner{text-align:center;padding:48px;color:#666;}
+.spinner{font-size:28px;animation:spin 1s linear infinite;display:inline-block;margin-bottom:10px;}
+.spinner-text{font-size:13px;animation:pulse 1.5s ease-in-out infinite;}
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:60px 20px;color:#555;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+/* PAGE TITLE BAR */
+.page-title-bar{padding:14px 16px;display:flex;align-items:center;gap:12px;background:#1a1a1a;border-bottom:1px solid #2a2a2a;}
+.page-title-back{background:none;border:none;color:#fff;cursor:pointer;font-size:22px;}
+.page-title-text{font-size:17px;font-weight:700;}
 </style>
 </head>
 <body>
-<div id="root">
-  <div class="loading">
-    <div class="loading-spinner">⟳</div>
-    <div style="font-size:14px;color:#666;">仙侠ワールドを読み込み中...</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" onclick="goPage('home')">
+      <span class="logo-char">弌</span>
+      <span class="logo-text">仙侠ワールド</span>
+    </a>
+    <div class="header-icons">
+      <button class="icon-btn" onclick="goPage('search')" title="検索">🔍</button>
+      <button class="icon-btn" id="lib-btn" onclick="goPage('library')" title="ライブラリ">📚<span class="badge" id="lib-count" style="display:none">0</span></button>
+    </div>
+  </div>
+</header>
+
+<!-- HOME PAGE -->
+<div class="page active main-content" id="page-home">
+
+  <!-- HERO SLIDER -->
+  <div class="slider-wrap">
+    <div id="slider-container">
+      <!-- Slides injected by JS -->
+    </div>
+    <button class="slider-prev" onclick="slidePrev()">‹</button>
+    <button class="slider-next" onclick="slideNext()">›</button>
+    <div class="slider-dots" id="slider-dots"></div>
+  </div>
+
+  <!-- ANNOUNCEMENT -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-title">お知らせ</span>
+      <button class="see-all">すべて見る ›</button>
+    </div>
+    <div id="announcements"></div>
+  </section>
+
+  <!-- POPULAR -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-title">今週の人気作</span>
+      <button class="see-all">すべて見る ›</button>
+    </div>
+    <div class="h-scroll" id="popular-scroll"></div>
+  </section>
+
+  <!-- NEW RELEASES -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-title">新着作品</span>
+      <button class="see-all">すべて見る ›</button>
+    </div>
+    <div class="h-scroll" id="new-scroll"></div>
+  </section>
+
+  <!-- COMPLETED -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-title">完結済み</span>
+      <button class="see-all">すべて見る ›</button>
+    </div>
+    <div class="h-scroll" id="completed-scroll"></div>
+  </section>
+
+  <!-- GENRES -->
+  <section class="section">
+    <div class="section-header">
+      <span class="section-title">ジャンルを探す</span>
+    </div>
+    <div class="genre-grid">
+      <div class="genre-card" onclick="filterGenre('仙侠')"><div class="genre-icon">⚡</div><div class="genre-name">仙侠</div><div class="genre-count">3,241 作品</div></div>
+      <div class="genre-card" onclick="filterGenre('武侠')"><div class="genre-icon">🗡️</div><div class="genre-name">武侠</div><div class="genre-count">2,108 作品</div></div>
+      <div class="genre-card" onclick="filterGenre('ファンタジー')"><div class="genre-icon">🔮</div><div class="genre-name">ファンタジー</div><div class="genre-count">4,620 作品</div></div>
+      <div class="genre-card" onclick="filterGenre('システム')"><div class="genre-icon">🤖</div><div class="genre-name">システム</div><div class="genre-count">1,854 作品</div></div>
+      <div class="genre-card" onclick="filterGenre('ロマンス')"><div class="genre-icon">💕</div><div class="genre-name">ロマンス</div><div class="genre-count">2,990 作品</div></div>
+      <div class="genre-card" onclick="filterGenre('完結')"><div class="genre-icon">✅</div><div class="genre-name">完結済み</div><div class="genre-count">5,102 作品</div></div>
+    </div>
+  </section>
+</div>
+
+<!-- NOVEL DETAIL PAGE -->
+<div class="page" id="page-detail">
+  <div class="detail-hero">
+    <img id="detail-hero-bg" src="" alt="" class="detail-hero-bg">
+    <button class="detail-back" onclick="goPage('home')">‹</button>
+  </div>
+  <div class="detail-body">
+    <div class="detail-cover-row">
+      <div class="detail-cover"><img id="detail-cover-img" src="" alt=""></div>
+      <div class="detail-info">
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-orig" id="detail-orig"></div>
+        <div class="detail-badges" id="detail-badges"></div>
+      </div>
+    </div>
+    <div class="detail-stats">
+      <div class="stat-item"><div class="stat-val" id="detail-chapters"></div><div class="stat-lbl">チャプター</div></div>
+      <div class="stat-item"><div class="stat-val" id="detail-views"></div><div class="stat-lbl">閲覧数</div></div>
+      <div class="stat-item"><div class="stat-val" id="detail-rating"></div><div class="stat-lbl">評価</div></div>
+    </div>
+    <div class="detail-cta">
+      <button class="btn-read" id="detail-read-btn" onclick="startReading()">▶ 今すぐ読む</button>
+      <button class="btn-heart" id="detail-heart-btn" onclick="toggleLibrary()">🤍</button>
+    </div>
+    <div class="detail-tabs">
+      <button class="tab-btn active" onclick="switchTab('about')">あらすじ</button>
+      <button class="tab-btn" onclick="switchTab('chapters')">チャプター一覧</button>
+    </div>
+    <div class="tab-content active" id="tab-about">
+      <p class="synopsis" id="detail-desc"></p>
+      <div class="tag-list" id="detail-tags"></div>
+    </div>
+    <div class="tab-content" id="tab-chapters">
+      <div id="chapter-list"></div>
+    </div>
   </div>
 </div>
-<script type="text/babel" data-presets="react">
-import { useState, useEffect, useRef, useCallback } from "react";
 
-// ── SVG COVER GENERATOR ──
-// Generates beautiful xianxia-styled cover art as inline SVG data URIs
+<!-- CHAPTER READER PAGE -->
+<div class="page" id="page-reader">
+  <div class="reader-header">
+    <button class="reader-back" id="reader-back-btn" onclick="goPage('detail')">‹</button>
+    <div class="reader-title-wrap">
+      <div class="reader-novel" id="reader-novel-title"></div>
+      <div class="reader-ch" id="reader-ch-label"></div>
+    </div>
+    <div class="font-controls">
+      <button class="font-btn" onclick="changeFontSize(-1)">A-</button>
+      <button class="font-btn" onclick="changeFontSize(1)">A+</button>
+    </div>
+  </div>
+  <div class="reader-body" id="reader-body">
+    <div class="reader-ch-title" id="reader-ch-title"></div>
+    <div id="reader-content"></div>
+    <div class="reader-nav">
+      <button class="nav-prev" id="nav-prev" onclick="prevChapter()">‹ 前へ</button>
+      <button class="nav-next" id="nav-next" onclick="nextChapter()">次へ ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- SEARCH PAGE -->
+<div class="page" id="page-search">
+  <div class="search-header">
+    <button class="reader-back" onclick="goPage('home')">‹</button>
+    <div class="search-input-wrap">
+      <span style="color:#666">🔍</span>
+      <input class="search-input" id="search-input" placeholder="小説、著者、ジャンルを検索..." oninput="doSearch(this.value)">
+    </div>
+  </div>
+  <div style="padding:70px 16px 16px">
+    <div id="search-ai-tip" style="display:none;margin-bottom:12px;padding:12px 14px;background:#1a1a1a;border-radius:10px;display:none;gap:10px;align-items:flex-start">
+      <span>✨</span>
+      <p id="search-ai-text" style="font-size:13px;color:#ccc;line-height:1.6"></p>
+    </div>
+    <div id="search-results"></div>
+    <div id="search-chips">
+      <div style="font-size:12px;color:#666;margin-bottom:10px;margin-top:8px">よく検索されるワード</div>
+      <span class="chip-btn" onclick="setSearch('仙侠')">仙侠</span>
+      <span class="chip-btn" onclick="setSearch('武侠')">武侠</span>
+      <span class="chip-btn" onclick="setSearch('転生')">転生</span>
+      <span class="chip-btn" onclick="setSearch('システム')">システム</span>
+      <span class="chip-btn" onclick="setSearch('完結')">完結</span>
+      <span class="chip-btn" onclick="setSearch('アクション')">アクション</span>
+    </div>
+  </div>
+</div>
+
+<!-- LIBRARY PAGE -->
+<div class="page" id="page-library">
+  <div class="page-title-bar">
+    <button class="page-title-back" onclick="goPage('home')">‹</button>
+    <span class="page-title-text" id="lib-page-title">マイライブラリ</span>
+  </div>
+  <div style="padding:16px" id="library-list"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" id="nav-home" onclick="goPage('home')">
+    <span class="nav-icon">🏠</span><span class="nav-label">ホーム</span>
+  </button>
+  <button class="nav-btn" id="nav-search" onclick="goPage('search')">
+    <span class="nav-icon">🔍</span><span class="nav-label">検索</span>
+  </button>
+  <button class="nav-btn" id="nav-library" onclick="goPage('library')">
+    <span class="nav-icon">📚</span><span class="nav-label">ライブラリ</span>
+  </button>
+  <button class="nav-btn" id="nav-profile" onclick="goPage('profile')">
+    <span class="nav-icon">👤</span><span class="nav-label">プロフィール</span>
+  </button>
+</nav>
+
+<script>
 function makeCover(id) {
   // Each cover: unique illustrated character + environment + fx
   const covers = {
@@ -424,778 +762,377 @@ const NOVELS = [
   },
 ];
 
-const BANNER_SLIDES = [
-  { novel: NOVELS[0], bgImg: null },
-  { novel: NOVELS[7], bgImg: null },
-  { novel: NOVELS[2], bgImg: null },
-  { novel: NOVELS[4], bgImg: null },
-  { novel: NOVELS[6], bgImg: null },
-];
 
-// ── CSS ──
-const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#111;color:#f0f0f0;font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;}
-::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:#1a1a1a;}::-webkit-scrollbar-thumb{background:#444;border-radius:2px;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideLeft{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes slideRight{from{transform:translateX(-100%);opacity:0}to{transform:translateX(0);opacity:1}}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
-@keyframes shimmer{0%{background-position:-200px 0}100%{background-position:200px 0}}
-.skeleton{background:linear-gradient(90deg,#222 25%,#2a2a2a 50%,#222 75%);background-size:400px 100%;animation:shimmer 1.4s ease infinite;}
-`;
+// ── STATE ──
+let currentNovel = null;
+let currentChapter = 1;
+let library = JSON.parse(localStorage.getItem('xw_library') || '[]');
+let readerFontSize = 16;
+let sliderIdx = 0;
+let sliderTimer = null;
+const BANNER_IDS = [1,8,3,5,7];
+const TOTAL_CHAPTERS_PREVIEW = 20;
 
-// ── COVER IMAGE with fallback ──
-function CoverImg({ src, alt, style, fallbackIcon, fallbackBg }) {
-  // SVG data URIs always work — show directly
-  const isSVG = src && src.startsWith("data:image/svg");
-  const [loaded, setLoaded] = useState(isSVG);
-  const [error, setError] = useState(false);
-
-  return (
-    <div style={{ position:"relative", ...style, background: fallbackBg||"#111", overflow:"hidden" }}>
-      {src && !error && (
-        <img
-          src={src}
-          alt={alt}
-          onLoad={()=>setLoaded(true)}
-          onError={()=>setError(true)}
-          style={{ width:"100%", height:"100%", objectFit:"cover", display:"block",
-            opacity: loaded ? 1 : 0, transition:"opacity .3s" }}
-        />
-      )}
-      {(!loaded && !error) && (
-        <div className="skeleton" style={{ position:"absolute", inset:0 }}/>
-      )}
-      {error && (
-        <div style={{ position:"absolute", inset:0, background:fallbackBg||"#222",
-          display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
-          padding:8, textAlign:"center" }}>
-          <span style={{fontSize:32,marginBottom:6}}>{fallbackIcon||"📖"}</span>
-          <span style={{fontSize:9,color:"#888",fontFamily:"sans-serif",lineHeight:1.3}}>{alt}</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── BANNER HERO SLIDER ──
-function HeroSlider({ onNovel }) {
-  const [idx, setIdx] = useState(0);
-  const [dir, setDir] = useState("left");
-  const timerRef = useRef();
-
-  const go = useCallback((nextIdx, direction="left") => {
-    setDir(direction);
-    setIdx(nextIdx);
-  }, []);
-
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      go((i) => (typeof i === "function" ? ((i(idx)+1) % BANNER_SLIDES.length) : (idx+1) % BANNER_SLIDES.length));
-      setIdx(i => (i+1) % BANNER_SLIDES.length);
-    }, 5000);
-    return () => clearInterval(timerRef.current);
-  }, [idx]);
-
-  const slide = BANNER_SLIDES[idx];
-  const novel = slide.novel;
-
-  return (
-    <div style={{ position:"relative", width:"100%", borderRadius:12, overflow:"hidden", marginBottom:24 }}>
-      {/* Background */}
-      <div key={idx} style={{ position:"relative", width:"100%", aspectRatio:"16/9", minHeight:200,
-        animation:`${dir==="left"?"slideLeft":"slideRight"} .4s ease` }}>
-        {/* Full background using novel cover as blurred bg */}
-        <img src={novel.cover} alt=""
-          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
-            display:"block", filter:"blur(12px) brightness(0.5) saturate(1.4)", transform:"scale(1.1)" }}/>
-        <div style={{ position:"absolute", inset:0, background: novel.bannerBg, opacity:0.55 }}/>
-        {/* Cover art on right side - sharp */}
-        <div style={{ position:"absolute", right:16, top:"50%", transform:"translateY(-50%)",
-          width:"38%", maxWidth:160, aspectRatio:"2/3", borderRadius:8, overflow:"hidden",
-          boxShadow:"-8px 0 30px rgba(0,0,0,.8), 0 4px 20px rgba(0,0,0,.6)" }}>
-          <CoverImg src={novel.cover} alt={novel.title}
-            style={{ width:"100%", height:"100%" }}
-            fallbackBg={novel.bannerBg} fallbackIcon="🐉"
-          />
-        </div>
-        {/* Content */}
-        <div style={{ position:"absolute", inset:0, padding:"20px 20px 16px", display:"flex",
-          flexDirection:"column", justifyContent:"flex-end", maxWidth:"70%" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
-            <span style={{ background:"rgba(255,255,255,.15)", backdropFilter:"blur(4px)",
-              border:"1px solid rgba(255,255,255,.2)", padding:"2px 8px", borderRadius:20,
-              fontSize:11, color:"#fff", fontWeight:500 }}>
-              👍 {novel.rating}%
-            </span>
-            <span style={{ background:"rgba(30,150,80,.3)", border:"1px solid rgba(30,150,80,.5)",
-              padding:"2px 8px", borderRadius:20, fontSize:11, color:"#4ade80" }}>
-              {novel.statusID}
-            </span>
-          </div>
-          <h2 style={{ fontWeight:700, fontSize:"clamp(16px,4vw,22px)", color:"#fff",
-            lineHeight:1.3, marginBottom:8, textShadow:"0 2px 8px rgba(0,0,0,.8)" }}>
-            {novel.titleID}
-          </h2>
-          <p style={{ fontSize:12, color:"rgba(255,255,255,.7)", lineHeight:1.6,
-            display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden",
-            marginBottom:12 }}>
-            {novel.desc}
-          </p>
-          <button onClick={()=>onNovel(novel)} style={{ width:"fit-content", background:"#e8a020",
-            border:"none", color:"#000", padding:"8px 20px", borderRadius:20, fontSize:13,
-            fontWeight:700, cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif" }}>
-            今すぐ読む
-          </button>
-        </div>
-      </div>
-
-      {/* Prev/Next */}
-      <button onClick={()=>{const p=(idx-1+BANNER_SLIDES.length)%BANNER_SLIDES.length;go(p,"right");setIdx(p);}}
-        style={{ position:"absolute", left:8, top:"50%", transform:"translateY(-50%)",
-          background:"rgba(0,0,0,.5)", border:"none", color:"#fff", width:28, height:28,
-          borderRadius:"50%", cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      <button onClick={()=>{const n=(idx+1)%BANNER_SLIDES.length;go(n,"left");setIdx(n);}}
-        style={{ position:"absolute", right:8, top:"50%", transform:"translateY(-50%)",
-          background:"rgba(0,0,0,.5)", border:"none", color:"#fff", width:28, height:28,
-          borderRadius:"50%", cursor:"pointer", fontSize:14, display:"flex", alignItems:"center", justifyContent:"center" }}>›</button>
-
-      {/* Dots */}
-      <div style={{ position:"absolute", bottom:10, left:"50%", transform:"translateX(-50%)",
-        display:"flex", gap:6 }}>
-        {BANNER_SLIDES.map((_,i)=>(
-          <button key={i} onClick={()=>{go(i,i>idx?"left":"right");setIdx(i);}}
-            style={{ width:i===idx?20:6, height:6, borderRadius:3, border:"none", cursor:"pointer",
-              background:i===idx?"#e8a020":"rgba(255,255,255,.35)", transition:"all .3s", padding:0 }}/>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── NOVEL CARD ──
-function NovelCard({ novel, rank, onNovel, showRating=true }) {
-  return (
-    <div onClick={()=>onNovel(novel)} style={{ cursor:"pointer", flex:"0 0 auto",
-      width:140, animation:"fadeIn .3s ease" }}>
-      <div style={{ position:"relative", borderRadius:8, overflow:"hidden",
-        marginBottom:8, boxShadow:"0 4px 12px rgba(0,0,0,.6)" }}>
-        <CoverImg src={novel.cover} alt={novel.title}
-          style={{ width:140, height:190 }}
-          fallbackBg={novel.bannerBg} fallbackIcon="📖"
-        />
-        {/* Status badge */}
-        <div style={{ position:"absolute", top:0, left:0, right:0,
-          background:"rgba(0,0,0,.6)", padding:"3px 6px" }}>
-          <span style={{ fontSize:10, color:novel.status==="連載中"?"#4ade80":"#60a5fa",
-            fontWeight:500 }}>{novel.statusID}</span>
-        </div>
-        {/* Rank number */}
-        {rank && (
-          <div style={{ position:"absolute", bottom:8, left:8,
-            fontWeight:900, fontSize:28, color:"#fff",
-            textShadow:"0 0 8px rgba(0,0,0,.9), 1px 1px 0 #000",
-            lineHeight:1, fontFamily:"'Noto Sans JP',sans-serif" }}>
-            {rank}
-          </div>
-        )}
-        {/* Clock icon like wuxiaworld */}
-        <div style={{ position:"absolute", bottom:8, right:8,
-          background:"rgba(0,0,0,.7)", borderRadius:6, width:22, height:22,
-          display:"flex", alignItems:"center", justifyContent:"center", fontSize:12 }}>⏱</div>
-        {novel.badge && (
-          <div style={{ position:"absolute", top:24, left:0,
-            background:novel.badge==="NEW"?"#059669":novel.badge==="CLASSIC"?"#7c3aed":novel.badge==="TOP"?"#dc2626":"#d97706",
-            padding:"2px 6px", fontSize:9, fontWeight:700, color:"#fff",
-            borderRadius:"0 4px 4px 0" }}>{novel.badge}</div>
-        )}
-      </div>
-      {showRating && (
-        <div style={{ fontSize:11, color:"#aaa", marginBottom:3 }}>
-          👍 {novel.rating}%
-        </div>
-      )}
-      <div style={{ fontSize:12, fontWeight:600, color:"#f0f0f0", lineHeight:1.4,
-        display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
-        {novel.titleID}
-      </div>
-    </div>
-  );
-}
-
-// ── HORIZONTAL SCROLL SECTION ──
-function HScrollSection({ title, novels, onNovel, showRank=false }) {
-  const ref = useRef();
-  return (
-    <section style={{ marginBottom:28 }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-        marginBottom:12, padding:"0 16px" }}>
-        <h2 style={{ fontSize:18, fontWeight:700, color:"#f0f0f0" }}>{title}</h2>
-        <button style={{ background:"none", border:"none", color:"#999", fontSize:13, cursor:"pointer" }}>
-          すべて見る ›
-        </button>
-      </div>
-      <div ref={ref} style={{ display:"flex", gap:12, overflowX:"auto", padding:"4px 16px 12px",
-        scrollbarWidth:"none", msOverflowStyle:"none" }}>
-        <style>{`.no-scroll::-webkit-scrollbar{display:none}`}</style>
-        {novels.map((n,i)=>(
-          <NovelCard key={n.id} novel={n} rank={showRank?i+1:null} onNovel={onNovel}/>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ── ANNOUNCEMENT ──
-function Announcement() {
-  return (
-    <section style={{ marginBottom:24, padding:"0 16px" }}>
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-        marginBottom:10 }}>
-        <h2 style={{ fontSize:18, fontWeight:700, color:"#f0f0f0" }}>お知らせ</h2>
-        <button style={{ background:"none", border:"none", color:"#999", fontSize:13, cursor:"pointer" }}>
-          すべて見る ›
-        </button>
-      </div>
-      {[
-        { icon:NOVELS[3].cover, title:"リッチ・フォー・ハイヤー – 狡猾なリッチの権力への台頭！", time:"5日前" },
-        { icon:NOVELS[0].cover, title:"Nine Star Hegemon Body Art – チャプター4800 sudah tersedia!", time:"2日前" },
-      ].map((a,i)=>(
-        <div key={i} style={{ display:"flex", alignItems:"center", gap:12,
-          background:"#1a1a1a", borderRadius:10, padding:"12px 14px",
-          marginBottom:8, cursor:"pointer", transition:"background .15s" }}
-          onMouseEnter={e=>e.currentTarget.style.background="#222"}
-          onMouseLeave={e=>e.currentTarget.style.background="#1a1a1a"}>
-          <div style={{ width:44, height:44, borderRadius:8, overflow:"hidden", flexShrink:0 }}>
-            <CoverImg src={a.icon} alt="" style={{ width:44, height:44 }} fallbackBg="#333" fallbackIcon="📢"/>
-          </div>
-          <div style={{ flex:1, minWidth:0 }}>
-            <div style={{ fontSize:13, fontWeight:500, color:"#e0e0e0", lineHeight:1.4,
-              display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
-              {a.title}
-            </div>
-            <div style={{ fontSize:11, color:"#666", marginTop:4 }}>{a.time}</div>
-          </div>
-          <span style={{ color:"#555", fontSize:16 }}>›</span>
-        </div>
-      ))}
-    </section>
-  );
-}
-
-// ── NOVEL DETAIL PAGE ──
-function NovelDetail({ novel, library, setLibrary, onRead, onBack }) {
-  const [tab, setTab] = useState("about");
-  const inLib = library.includes(novel.id);
-
-  return (
-    <div style={{ minHeight:"100vh", background:"#111", animation:"fadeIn .25s ease" }}>
-      {/* Cover Banner */}
-      <div style={{ position:"relative", width:"100%", height:260, overflow:"hidden" }}>
-        <CoverImg src={novel.cover} alt={novel.title}
-          style={{ position:"absolute", inset:0, width:"100%", height:"100%" }}
-          fallbackBg={novel.bannerBg} fallbackIcon="📖"
-        />
-        <div style={{ position:"absolute", inset:0,
-          background:"linear-gradient(to bottom, rgba(0,0,0,.3) 0%, rgba(17,17,17,1) 100%)" }}/>
-        <button onClick={onBack} style={{ position:"absolute", top:16, left:16,
-          background:"rgba(0,0,0,.6)", border:"none", color:"#fff", width:36, height:36,
-          borderRadius:"50%", cursor:"pointer", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>‹</button>
-      </div>
-
-      {/* Info */}
-      <div style={{ padding:"0 16px", marginTop:-60, position:"relative", zIndex:1 }}>
-        <div style={{ display:"flex", gap:14, marginBottom:16 }}>
-          <div style={{ width:100, height:140, borderRadius:8, overflow:"hidden",
-            boxShadow:"0 4px 20px rgba(0,0,0,.8)", flexShrink:0 }}>
-            <CoverImg src={novel.cover} alt={novel.title}
-              style={{ width:100, height:140 }}
-              fallbackBg={novel.bannerBg} fallbackIcon="📖"
-            />
-          </div>
-          <div style={{ flex:1, paddingTop:60 }}>
-            <h1 style={{ fontSize:18, fontWeight:700, color:"#fff", lineHeight:1.3,
-              marginBottom:4, textShadow:"0 1px 4px rgba(0,0,0,.8)" }}>
-              {novel.titleID}
-            </h1>
-            <div style={{ fontSize:13, color:"#aaa", marginBottom:8 }}>{novel.title}</div>
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              <span style={{ background:"rgba(78,205,90,.15)", border:"1px solid rgba(78,205,90,.3)",
-                color:"#4ade80", padding:"3px 10px", borderRadius:20, fontSize:11 }}>
-                👍 {novel.rating}%
-              </span>
-              <span style={{ background:novel.status==="完結"?"rgba(96,165,250,.15)":"rgba(74,222,128,.15)",
-                border:`1px solid ${novel.status==="完結"?"rgba(96,165,250,.3)":"rgba(74,222,128,.3)"}`,
-                color:novel.status==="完結"?"#60a5fa":"#4ade80",
-                padding:"3px 10px", borderRadius:20, fontSize:11 }}>
-                {novel.statusID}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:1,
-          background:"#2a2a2a", borderRadius:10, overflow:"hidden", marginBottom:16 }}>
-          {[["📖",novel.chapters.toLocaleString(),"チャプター"],["👁️",novel.views,"閲覧数"],["⭐","4."+Math.floor(novel.rating/10),"評価"]].map(([ic,val,lbl])=>(
-            <div key={lbl} style={{ background:"#1a1a1a", padding:"12px 8px", textAlign:"center" }}>
-              <div style={{ fontSize:15, fontWeight:700, color:"#f0f0f0" }}>{ic} {val}</div>
-              <div style={{ fontSize:10, color:"#666", marginTop:2 }}>{lbl}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* CTA */}
-        <div style={{ display:"flex", gap:10, marginBottom:20 }}>
-          <button onClick={()=>onRead(1)} style={{ flex:1, background:"#e8a020", border:"none",
-            color:"#000", padding:"13px", borderRadius:25, fontSize:14, fontWeight:700,
-            cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif" }}>
-            ▶ 今すぐ読む
-          </button>
-          <button onClick={()=>setLibrary(p=>inLib?p.filter(x=>x!==novel.id):[...p,novel.id])}
-            style={{ width:50, background:inLib?"rgba(232,160,32,.15)":"#222",
-              border:`1px solid ${inLib?"#e8a020":"#333"}`,
-              color:inLib?"#e8a020":"#aaa", borderRadius:25, fontSize:18, cursor:"pointer" }}>
-            {inLib?"❤️":"🤍"}
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div style={{ display:"flex", borderBottom:"1px solid #2a2a2a", marginBottom:16 }}>
-          {["about","chapters"].map(t=>(
-            <button key={t} onClick={()=>setTab(t)} style={{ flex:1, background:"none", border:"none",
-              borderBottom:`2px solid ${tab===t?"#e8a020":"transparent"}`,
-              color:tab===t?"#e8a020":"#666", padding:"10px", fontSize:13, fontWeight:600,
-              cursor:"pointer", textTransform:"capitalize", fontFamily:"'Noto Sans JP',sans-serif" }}>
-              {t==="about"?"あらすじ":"チャプター一覧"}
-            </button>
-          ))}
-        </div>
-
-        {tab==="about" && (
-          <div style={{ animation:"fadeIn .2s ease" }}>
-            <p style={{ fontSize:14, color:"#ccc", lineHeight:1.8, marginBottom:16 }}>{novel.desc}</p>
-            <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-              {novel.tags.map(t=>(
-                <span key={t} style={{ background:"#222", border:"1px solid #333",
-                  color:"#aaa", padding:"4px 12px", borderRadius:20, fontSize:12 }}>{t}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {tab==="chapters" && (
-          <div style={{ animation:"fadeIn .2s ease" }}>
-            {Array.from({length:Math.min(20,novel.chapters)},(_,i)=>i+1).map(n=>(
-              <div key={n} onClick={()=>onRead(n)}
-                style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
-                  padding:"13px 14px", background:"#1a1a1a", borderRadius:8,
-                  marginBottom:6, cursor:"pointer", transition:"background .15s" }}
-                onMouseEnter={e=>e.currentTarget.style.background="#222"}
-                onMouseLeave={e=>e.currentTarget.style.background="#1a1a1a"}>
-                <div>
-                  <span style={{ fontSize:12, color:"#888", marginRight:8 }}>Ch.{n}</span>
-                  <span style={{ fontSize:14, color:"#e0e0e0" }}>チャプター {n}</span>
-                </div>
-                <span style={{ color:"#555" }}>›</span>
-              </div>
-            ))}
-            {novel.chapters > 20 && (
-              <div style={{ textAlign:"center", padding:"14px", color:"#666", fontSize:13 }}>
-                + {(novel.chapters-20).toLocaleString()} チャプターがあります
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── CHAPTER READER ──
-function チャプターReader({ novel, chapterNum, onBack, onPrev, onNext, total }) {
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [fontSize, setFontSize] = useState(16);
-  const topRef = useRef();
-
-  useEffect(()=>{
-    topRef.current?.scrollIntoView({behavior:"smooth"});
-    setLoading(true); setContent("");
-    (async()=>{
-      try {
-        const res = await fetch("https://api.anthropic.com/v1/messages",{
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({
-            model:"claude-sonnet-4-20250514", max_tokens:900,
-            system:"You are a skilled xianxia/wuxia novel author. Write one chapter in English with flowing, dramatic, and immersive prose. Write 4-5 substantial paragraphs. Do not include a chapter number or title heading — just write the story content directly. Use vivid cultivation terminology, dramatic tension, and compelling character voice.",
-            messages:[{role:"user",content:`Write Chapter ${chapterNum} of "${novel.title}" by ${novel.author}. Genre: ${novel.genre}. Synopsis: ${novel.desc}. Write in vivid English prose with 4-5 paragraphs using rich xianxia/wuxia cultivation terminology, dramatic tension, and immersive world-building.`}]
-          })
-        });
-        const d = await res.json();
-        setContent(d.content?.map(b=>b.text||"").join("\n\n")||"チャプターのコンテンツは現在利用できません。");
-      } catch {
-        setContent("This scroll has yet to be translated. Please return later.");
-      }
-      setLoading(false);
-    })();
-  },[chapterNum, novel.id]);
-
-  return (
-    <div ref={topRef} style={{ minHeight:"100vh", background:"#0d0d0d" }}>
-      {/* Header */}
-      <div style={{ position:"sticky", top:0, zIndex:50, background:"rgba(13,13,13,.97)",
-        borderBottom:"1px solid #2a2a2a", padding:"12px 16px",
-        display:"flex", alignItems:"center", justifyContent:"space-between", backdropFilter:"blur(8px)" }}>
-        <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff",
-          cursor:"pointer", fontSize:22, display:"flex", alignItems:"center", gap:4, padding:0 }}>‹</button>
-        <div style={{ textAlign:"center" }}>
-          <div style={{ fontSize:13, fontWeight:600, color:"#e0e0e0" }}>{novel.titleID}</div>
-          <div style={{ fontSize:11, color:"#666" }}>チャプター {chapterNum}</div>
-        </div>
-        <div style={{ display:"flex", gap:6 }}>
-          <button onClick={()=>setFontSize(f=>Math.max(13,f-1))}
-            style={{ background:"#222", border:"none", color:"#aaa", width:30, height:30,
-              borderRadius:6, cursor:"pointer", fontSize:14 }}>A-</button>
-          <button onClick={()=>setFontSize(f=>Math.min(22,f+1))}
-            style={{ background:"#222", border:"none", color:"#aaa", width:30, height:30,
-              borderRadius:6, cursor:"pointer", fontSize:16 }}>A+</button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div style={{ maxWidth:680, margin:"0 auto", padding:"32px 20px 60px" }}>
-        <h2 style={{ fontSize:18, fontWeight:700, color:"#e8a020", textAlign:"center",
-          marginBottom:32 }}>チャプター {chapterNum}</h2>
-        {loading ? (
-          <div style={{ textAlign:"center", padding:"60px 0", color:"#666" }}>
-            <div style={{ fontSize:28, animation:"spin 1s linear infinite", display:"inline-block", marginBottom:12 }}>⟳</div>
-            <div style={{ fontSize:13, animation:"pulse 1.5s ease-in-out infinite" }}>チャプターを読み込み中...</div>
-          </div>
-        ) : (
-          <div style={{ animation:"fadeIn .4s ease" }}>
-            {content.split("\n\n").filter(p=>p.trim()).map((p,i)=>(
-              <p key={i} style={{ fontSize:fontSize, lineHeight:1.95, color:"#ccc",
-                marginBottom:"1.6em", fontFamily:"'Noto Serif JP',serif", textIndent:"2em" }}>
-                {p.trim()}
-              </p>
-            ))}
-          </div>
-        )}
-
-        {/* Nav */}
-        <div style={{ display:"flex", gap:12, marginTop:40 }}>
-          <button onClick={onPrev} disabled={chapterNum<=1}
-            style={{ flex:1, background:chapterNum<=1?"#1a1a1a":"#222", border:"1px solid #333",
-              color:chapterNum<=1?"#444":"#aaa", padding:"12px", borderRadius:10,
-              cursor:chapterNum<=1?"default":"pointer", fontSize:13, fontFamily:"'Noto Sans JP',sans-serif" }}>
-            ‹ 前へ
-          </button>
-          <button onClick={onNext} disabled={chapterNum>=total}
-            style={{ flex:1, background:chapterNum>=total?"#1a1a1a":"#e8a020",
-              border:"none", color:chapterNum>=total?"#444":"#000",
-              padding:"12px", borderRadius:10,
-              cursor:chapterNum>=total?"default":"pointer", fontSize:13,
-              fontWeight:600, fontFamily:"'Noto Sans JP',sans-serif" }}>
-            次へ ›
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── SEARCH ──
-function SearchPage({ onNovel, onBack }) {
-  const [q, setQ] = useState("");
-  const [results, setResults] = useState([]);
-  const [ai, setAi] = useState("");
-  const [loading, setLoading] = useState(false);
-  const ref = useRef();
-  useEffect(()=>ref.current?.focus(),[]);
-
-  const doSearch = async(query) => {
-    if(!query.trim()) { setResults([]); setAi(""); return; }
-    setLoading(true); setAi("");
-    const local = NOVELS.filter(n=>
-      n.titleID.toLowerCase().includes(query.toLowerCase())||
-      n.title.toLowerCase().includes(query.toLowerCase())||
-      n.genre.toLowerCase().includes(query.toLowerCase())||
-      n.tags.some(t=>t.toLowerCase().includes(query.toLowerCase()))
-    );
-    setResults(local);
-    try {
-      const res = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:150,system:"You are an assistant for a xianxia novel reading platform. Give a short 1-2 sentence recommendation based on the user's search query. Reply in Japanese.",messages:[{role:"user",content:`Search query: "${query}"`}]})});
-      const d = await res.json();
-      setAi(d.content?.[0]?.text||"");
-    } catch{}
-    setLoading(false);
-  };
-
-  return (
-    <div style={{ minHeight:"100vh", background:"#111" }}>
-      <div style={{ padding:"12px 16px", display:"flex", gap:10, alignItems:"center",
-        background:"#1a1a1a", borderBottom:"1px solid #2a2a2a", position:"sticky", top:0, zIndex:50 }}>
-        <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff",
-          cursor:"pointer", fontSize:22, padding:0 }}>‹</button>
-        <div style={{ flex:1, display:"flex", alignItems:"center", background:"#222",
-          borderRadius:20, padding:"8px 14px", gap:8 }}>
-          <span style={{ color:"#666" }}>🔍</span>
-          <input ref={ref} value={q} onChange={e=>{setQ(e.target.value);doSearch(e.target.value);}}
-            placeholder="小説、著者、ジャンルを検索..." autoFocus
-            style={{ flex:1, background:"none", border:"none", color:"#e0e0e0", fontSize:14,
-              outline:"none", fontFamily:"'Noto Sans JP',sans-serif" }}/>
-          {loading && <span style={{ animation:"spin .8s linear infinite", display:"inline-block", color:"#e8a020" }}>⟳</span>}
-        </div>
-      </div>
-
-      {ai && (
-        <div style={{ margin:"12px 16px", padding:"12px 14px", background:"#1a1a1a",
-          borderRadius:10, display:"flex", gap:10, alignItems:"flex-start" }}>
-          <span style={{ fontSize:16 }}>✨</span>
-          <p style={{ fontSize:13, color:"#ccc", lineHeight:1.6 }}>{ai}</p>
-        </div>
-      )}
-
-      <div style={{ padding:"8px 16px" }}>
-        {results.length > 0 ? results.map(n=>(
-          <div key={n.id} onClick={()=>onNovel(n)}
-            style={{ display:"flex", gap:12, padding:"12px 0", borderBottom:"1px solid #1e1e1e",
-              cursor:"pointer" }}>
-            <div style={{ width:50, height:70, borderRadius:6, overflow:"hidden", flexShrink:0 }}>
-              <CoverImg src={n.cover} alt={n.title} style={{ width:50, height:70 }}
-                fallbackBg={n.bannerBg} fallbackIcon="📖"/>
-            </div>
-            <div style={{ flex:1 }}>
-              <div style={{ fontSize:14, fontWeight:600, color:"#e0e0e0", marginBottom:2 }}>{n.titleID}</div>
-              <div style={{ fontSize:12, color:"#777", marginBottom:4 }}>{n.title} · {n.genre}</div>
-              <div style={{ fontSize:12, color:"#555", lineHeight:1.5,
-                display:"-webkit-box", WebkitLineClamp:2, WebkitBoxOrient:"vertical", overflow:"hidden" }}>
-                {n.desc}
-              </div>
-            </div>
-          </div>
-        )) : !loading && q && (
-          <div style={{ textAlign:"center", padding:"40px 20px", color:"#555" }}>
-            検索結果なし： "{q}"
-          </div>
-        )}
-        {!q && (
-          <div>
-            <div style={{ fontSize:12, color:"#666", marginBottom:10, marginTop:8 }}>よく検索されるワード</div>
-            {["仙侠","武侠","転生","システム","完結","アクション"].map(t=>(
-              <button key={t} onClick={()=>{setQ(t);doSearch(t);}}
-                style={{ display:"inline-block", background:"#1a1a1a", border:"1px solid #2a2a2a",
-                  color:"#aaa", padding:"7px 14px", borderRadius:20, fontSize:13,
-                  margin:"0 8px 8px 0", cursor:"pointer", fontFamily:"'Noto Sans JP',sans-serif" }}>{t}</button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
+// ── COVER RENDERING ──
+function coverToImg(novelId) {
+  const svgDataUri = makeCover(novelId);
+  return svgDataUri;
 }
 
 // ── LIBRARY ──
-function LibraryPage({ library, setLibrary, onNovel, onBack }) {
-  const novels = NOVELS.filter(n=>library.includes(n.id));
-  return (
-    <div style={{ minHeight:"100vh", background:"#111" }}>
-      <div style={{ padding:"14px 16px", display:"flex", alignItems:"center", gap:12,
-        background:"#1a1a1a", borderBottom:"1px solid #2a2a2a", position:"sticky", top:0, zIndex:50 }}>
-        <button onClick={onBack} style={{ background:"none", border:"none", color:"#fff",
-          cursor:"pointer", fontSize:22 }}>‹</button>
-        <h1 style={{ fontSize:17, fontWeight:700 }}>マイライブラリ ({library.length})</h1>
-      </div>
-      <div style={{ padding:"12px 16px" }}>
-        {novels.length===0 ? (
-          <div style={{ textAlign:"center", padding:"60px 20px", color:"#555" }}>
-            <div style={{ fontSize:40, marginBottom:12 }}>📚</div>
-            <div style={{ fontSize:14 }}>ライブラリ kosong</div>
-            <div style={{ fontSize:12, marginTop:6, color:"#444" }}>お気に入りの小説を追加しよう</div>
-          </div>
-        ) : novels.map(n=>(
-          <div key={n.id} style={{ display:"flex", gap:12, padding:"12px 0",
-            borderBottom:"1px solid #1e1e1e" }}>
-            <div onClick={()=>onNovel(n)} style={{ cursor:"pointer", flexShrink:0 }}>
-              <CoverImg src={n.cover} alt={n.title} style={{ width:60, height:84, borderRadius:6 }}
-                fallbackBg={n.bannerBg} fallbackIcon="📖"/>
-            </div>
-            <div style={{ flex:1 }} onClick={()=>onNovel(n)}>
-              <div style={{ fontSize:14, fontWeight:600, color:"#e0e0e0", marginBottom:2 }}>{n.titleID}</div>
-              <div style={{ fontSize:12, color:"#777", marginBottom:6 }}>{n.author}</div>
-              <span style={{ background:"rgba(74,222,128,.1)", border:"1px solid rgba(74,222,128,.2)",
-                color:"#4ade80", padding:"2px 8px", borderRadius:10, fontSize:11 }}>{n.statusID}</span>
-            </div>
-            <button onClick={()=>setLibrary(p=>p.filter(x=>x!==n.id))}
-              style={{ background:"none", border:"none", color:"#555", cursor:"pointer",
-                fontSize:18, alignSelf:"center" }}>✕</button>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+function saveLibrary() {
+  localStorage.setItem('xw_library', JSON.stringify(library));
+  const count = library.length;
+  const badge = document.getElementById('lib-count');
+  if(count > 0){ badge.textContent = count; badge.style.display='flex'; }
+  else badge.style.display='none';
+  const titleEl = document.getElementById('lib-page-title');
+  if(titleEl) titleEl.textContent = 'マイライブラリ (' + count + ')';
 }
 
-// ── MAIN APP ──
-function App() {
-  const [page, setPage] = useState("home");
-  const [selectedNovel, setSelectedNovel] = useState(null);
-  const [chapter, setチャプター] = useState(1);
-  const [library, setLibrary] = useState([]);
-  const appRef = useRef();
-
-  const goNovel = (n) => { setSelectedNovel(n); setPage("作品"); appRef.current?.scrollTo(0,0); };
-  const goRead  = (c) => { setチャプター(c); setPage("chapter"); appRef.current?.scrollTo(0,0); };
-  const goHome  = () => { setPage("home"); appRef.current?.scrollTo(0,0); };
-
-  const popular = [...NOVELS].sort((a,b)=>b.views.localeCompare(a.views)).slice(0,8);
-  const newReleases = [...NOVELS].slice(3,11);
-  const completed = NOVELS.filter(n=>n.status==="完結");
-
-  if(page==="chapter" && selectedNovel) return (
-    <div ref={appRef} style={{minHeight:"100vh",background:"#0d0d0d",overflowY:"auto"}}>
-      <style>{CSS}</style>
-      <チャプターReader novel={selectedNovel} chapterNum={chapter}
-        onBack={()=>setPage("作品")}
-        onPrev={()=>{if(chapter>1){setチャプター(c=>c-1);appRef.current?.scrollTo(0,0);}}}
-        onNext={()=>{if(chapter<Math.min(20,selectedNovel.chapters)){setチャプター(c=>c+1);appRef.current?.scrollTo(0,0);}}}
-        total={Math.min(20,selectedNovel.chapters)}/>
-    </div>
-  );
-
-  if(page==="作品" && selectedNovel) return (
-    <div ref={appRef} style={{minHeight:"100vh",background:"#111",overflowY:"auto"}}>
-      <style>{CSS}</style>
-      <NovelDetail novel={selectedNovel} library={library} setLibrary={setLibrary}
-        onRead={goRead} onBack={goHome}/>
-    </div>
-  );
-
-  if(page==="search") return (
-    <div ref={appRef} style={{minHeight:"100vh",background:"#111",overflowY:"auto"}}>
-      <style>{CSS}</style>
-      <SearchPage onNovel={(n)=>{goNovel(n);}} onBack={goHome}/>
-    </div>
-  );
-
-  if(page==="library") return (
-    <div ref={appRef} style={{minHeight:"100vh",background:"#111",overflowY:"auto"}}>
-      <style>{CSS}</style>
-      <LibraryPage library={library} setLibrary={setLibrary}
-        onNovel={(n)=>{goNovel(n);}} onBack={goHome}/>
-    </div>
-  );
-
-  // HOME
-  return (
-    <div ref={appRef} style={{ minHeight:"100vh", background:"#111", overflowY:"auto" }}>
-      <style>{CSS}</style>
-
-      {/* TOP NAV */}
-      <header style={{ position:"sticky", top:0, zIndex:100, background:"rgba(17,17,17,.97)",
-        backdropFilter:"blur(12px)", borderBottom:"1px solid #1e1e1e" }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between",
-          padding:"12px 16px" }}>
-          <div onClick={goHome} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
-            <span style={{ fontSize:28, lineHeight:1 }}>弌</span>
-            <span style={{ fontSize:11, color:"#666", fontFamily:"serif" }}>XIANXIA</span>
-          </div>
-          <div style={{ display:"flex", gap:14, alignItems:"center" }}>
-            <button onClick={()=>setPage("search")}
-              style={{ background:"none", border:"none", color:"#ccc", cursor:"pointer", fontSize:20 }}>🔍</button>
-            <button onClick={()=>setPage("library")}
-              style={{ background:"none", border:"none", color:"#ccc", cursor:"pointer", fontSize:20, position:"relative" }}>
-              📚
-              {library.length>0 && <span style={{ position:"absolute", top:-4, right:-4,
-                background:"#e8a020", color:"#000", borderRadius:"50%", width:16, height:16,
-                display:"flex", alignItems:"center", justifyContent:"center", fontSize:9, fontWeight:700 }}>
-                {library.length}
-              </span>}
-            </button>
-            <button style={{ background:"none", border:"none", color:"#ccc", cursor:"pointer", fontSize:22 }}>☰</button>
-          </div>
-        </div>
-      </header>
-
-      {/* MAIN CONTENT */}
-      <div style={{ padding:"16px 0", maxWidth:800, margin:"0 auto" }}>
-
-        {/* HERO SLIDER */}
-        <div style={{ padding:"0 16px" }}>
-          <HeroSlider onNovel={goNovel}/>
-        </div>
-
-        {/* ANNOUNCEMENT */}
-        <Announcement/>
-
-        {/* POPULAR THIS WEEK */}
-        <HScrollSection
-          title="今週の人気作"
-          novels={popular}
-          onNovel={goNovel}
-          showRank={true}
-        />
-
-        {/* NEW RELEASES */}
-        <HScrollSection
-          title="新着作品"
-          novels={newReleases}
-          onNovel={goNovel}
-        />
-
-        {/* COMPLETED */}
-        <HScrollSection
-          title="完結済み"
-          novels={completed}
-          onNovel={goNovel}
-        />
-
-        {/* GENRE GRID */}
-        <section style={{ padding:"0 16px", marginBottom:32 }}>
-          <h2 style={{ fontSize:18, fontWeight:700, marginBottom:12 }}>ジャンルを探す</h2>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8 }}>
-            {[["⚡","仙侠","3,241"],["🗡️","武侠","2,108"],["🔮","ファンタジー","4,620"],["🤖","システム","1,854"],["💕","ロマンス","2,990"],["✅","完結","5,102"]].map(([ic,name,cnt])=>(
-              <div key={name} style={{ background:"#1a1a1a", borderRadius:10, padding:"14px 10px",
-                cursor:"pointer", textAlign:"center", transition:"background .15s" }}
-                onMouseEnter={e=>e.currentTarget.style.background="#222"}
-                onMouseLeave={e=>e.currentTarget.style.background="#1a1a1a"}>
-                <div style={{ fontSize:24, marginBottom:6 }}>{ic}</div>
-                <div style={{ fontSize:13, fontWeight:600, color:"#e0e0e0", marginBottom:2 }}>{name}</div>
-                <div style={{ fontSize:11, color:"#666" }}>{cnt} novel</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* BOTTOM NAV */}
-      <nav style={{ position:"fixed", bottom:0, left:0, right:0, zIndex:100,
-        background:"rgba(17,17,17,.97)", backdropFilter:"blur(12px)",
-        borderTop:"1px solid #1e1e1e", display:"flex", padding:"8px 0" }}>
-        {[["🏠","ホーム","home"],["🔍","検索","search"],["📚","ライブラリ","library"],["👤","プロフィール","profile"]].map(([ic,lbl,p])=>(
-          <button key={p} onClick={()=>p!=="profile"&&setPage(p)}
-            style={{ flex:1, background:"none", border:"none", cursor:"pointer", padding:"6px 0",
-              display:"flex", flexDirection:"column", alignItems:"center", gap:2 }}>
-            <span style={{ fontSize:20 }}>{ic}</span>
-            <span style={{ fontSize:10, color:page===p?"#e8a020":"#666",
-              fontFamily:"'Noto Sans JP',sans-serif", fontWeight:page===p?600:400 }}>{lbl}</span>
-          </button>
-        ))}
-      </nav>
-
-      {/* Space for bottom nav */}
-      <div style={{ height:65 }}/>
-    </div>
-  );
+function toggleLibrary() {
+  if(!currentNovel) return;
+  const id = currentNovel.id;
+  const idx = library.indexOf(id);
+  if(idx > -1) library.splice(idx,1);
+  else library.push(id);
+  saveLibrary();
+  updateHeartBtn();
 }
 
+function updateHeartBtn() {
+  const btn = document.getElementById('detail-heart-btn');
+  if(!btn || !currentNovel) return;
+  const inLib = library.includes(currentNovel.id);
+  btn.textContent = inLib ? '❤️' : '🤍';
+  btn.className = 'btn-heart' + (inLib ? ' active' : '');
+}
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(App));
+// ── PAGE NAVIGATION ──
+function goPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId);
+  if(target) { target.classList.add('active'); target.scrollTop = 0; }
+  // update bottom nav
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const navBtn = document.getElementById('nav-' + pageId);
+  if(navBtn) navBtn.classList.add('active');
+  // special page setup
+  if(pageId === 'library') renderLibraryPage();
+  if(pageId === 'search') {
+    setTimeout(() => document.getElementById('search-input')?.focus(), 100);
+    document.getElementById('search-results').innerHTML = '';
+    document.getElementById('search-input').value = '';
+    document.getElementById('search-chips').style.display = 'block';
+  }
+  window.scrollTo(0,0);
+}
+
+// ── OPEN NOVEL DETAIL ──
+function openNovel(novelId) {
+  currentNovel = NOVELS.find(n => n.id === novelId);
+  if(!currentNovel) return;
+  const n = currentNovel;
+  const coverSrc = coverToImg(n.id);
+
+  document.getElementById('detail-hero-bg').src = coverSrc;
+  document.getElementById('detail-cover-img').src = coverSrc;
+  document.getElementById('detail-cover-img').alt = n.title;
+  document.getElementById('detail-title').textContent = n.titleID;
+  document.getElementById('detail-orig').textContent = n.title;
+  document.getElementById('detail-chapters').textContent = '📖 ' + n.chapters.toLocaleString();
+  document.getElementById('detail-views').textContent = '👁️ ' + n.views;
+  document.getElementById('detail-rating').textContent = '⭐ ' + (Math.floor(n.rating/10)/1).toFixed(1) + '/10';
+  document.getElementById('detail-desc').textContent = n.desc;
+
+  // badges
+  const badgesEl = document.getElementById('detail-badges');
+  badgesEl.innerHTML = `
+    <span class="${n.status==='完結'?'badge-status-done':'badge-status-ongoing'}">${n.status}</span>
+    <span class="badge-rating">👍 ${n.rating}%</span>
+  `;
+
+  // tags
+  document.getElementById('detail-tags').innerHTML = n.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  // chapter list
+  const clEl = document.getElementById('chapter-list');
+  let chHtml = '';
+  const maxCh = Math.min(TOTAL_CHAPTERS_PREVIEW, n.chapters);
+  for(let i=1; i<=maxCh; i++) {
+    chHtml += `<div class="chapter-item" onclick="readChapter(${i})">
+      <div class="ch-left"><span class="ch-num">第${i}話</span><span class="ch-title">チャプター ${i}</span></div>
+      <span class="ch-arrow">›</span>
+    </div>`;
+  }
+  if(n.chapters > TOTAL_CHAPTERS_PREVIEW) {
+    chHtml += `<div style="text-align:center;padding:14px;color:#555;font-size:13px">+ ${(n.chapters-TOTAL_CHAPTERS_PREVIEW).toLocaleString()} チャプターがあります</div>`;
+  }
+  clEl.innerHTML = chHtml;
+
+  updateHeartBtn();
+  switchTab('about');
+  goPage('detail');
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab-btn[onclick="switchTab('${tabId}')"]`).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ── START READING ──
+function startReading() { readChapter(1); }
+function readChapter(chNum) {
+  currentChapter = chNum;
+  loadChapter();
+  goPage('reader');
+}
+
+// ── CHAPTER READER ──
+function loadChapter() {
+  if(!currentNovel) return;
+  const n = currentNovel;
+  document.getElementById('reader-novel-title').textContent = n.titleID;
+  document.getElementById('reader-ch-label').textContent = '第' + currentChapter + '話';
+  document.getElementById('reader-ch-title').textContent = '第' + currentChapter + '話';
+  document.getElementById('nav-prev').disabled = currentChapter <= 1;
+  document.getElementById('nav-next').disabled = currentChapter >= Math.min(TOTAL_CHAPTERS_PREVIEW, n.chapters);
+
+  const content = document.getElementById('reader-content');
+  content.innerHTML = `<div class="loading-spinner"><div class="spinner">⟳</div><div class="spinner-text">チャプターを読み込み中...</div></div>`;
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      system: 'You are a skilled xianxia/wuxia novel author. Write one compelling chapter in English with flowing, dramatic, immersive prose. Write exactly 4-5 substantial paragraphs. Do NOT include any chapter number, title heading, or introductory label — start directly with the story. Use vivid cultivation terminology, dramatic tension, and rich world-building.',
+      messages: [{ role: 'user', content: 'Write Chapter ' + currentChapter + ' of "' + n.title + '" by ' + n.author + '. Genre: ' + n.genre + '. Synopsis: ' + n.desc }]
+    })
+  })
+  .then(r => r.json())
+  .then(data => {
+    const text = (data.content || []).map(b => b.text || '').join('\n\n');
+    const paras = text.split('\n\n').filter(p => p.trim());
+    content.innerHTML = paras.map(p =>
+      `<p class="reader-para" style="font-size:${readerFontSize}px">${p.trim()}</p>`
+    ).join('');
+    document.getElementById('reader-body').scrollTop = 0;
+  })
+  .catch(() => {
+    content.innerHTML = '<p class="reader-para" style="font-size:' + readerFontSize + 'px">This scroll has yet to be translated. Please return later.</p>';
+  });
+}
+
+function prevChapter() {
+  if(currentChapter > 1) { currentChapter--; loadChapter(); document.getElementById('reader-body').scrollTop=0; }
+}
+function nextChapter() {
+  const max = Math.min(TOTAL_CHAPTERS_PREVIEW, currentNovel?.chapters || 1);
+  if(currentChapter < max) { currentChapter++; loadChapter(); document.getElementById('reader-body').scrollTop=0; }
+}
+function changeFontSize(delta) {
+  readerFontSize = Math.max(13, Math.min(22, readerFontSize + delta));
+  document.querySelectorAll('.reader-para').forEach(p => p.style.fontSize = readerFontSize + 'px');
+}
+
+// ── SEARCH ──
+let searchTimer = null;
+function doSearch(q) {
+  clearTimeout(searchTimer);
+  const resultsEl = document.getElementById('search-results');
+  const chipsEl = document.getElementById('search-chips');
+  const aiTip = document.getElementById('search-ai-tip');
+  if(!q.trim()) {
+    resultsEl.innerHTML = ''; chipsEl.style.display='block'; aiTip.style.display='none'; return;
+  }
+  chipsEl.style.display = 'none';
+  const ql = q.toLowerCase();
+  const found = NOVELS.filter(n =>
+    n.titleID.toLowerCase().includes(ql) || n.title.toLowerCase().includes(ql) ||
+    n.genre.toLowerCase().includes(ql) || n.tags.some(t => t.toLowerCase().includes(ql))
+  );
+  if(found.length === 0) {
+    resultsEl.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#555">「${q}」の検索結果はありません</div>`;
+  } else {
+    resultsEl.innerHTML = found.map(n => `
+      <div class="search-result" onclick="openNovel(${n.id})">
+        <div class="search-result-cover"><img src="${coverToImg(n.id)}" alt="${n.title}"></div>
+        <div>
+          <div class="search-title">${n.titleID}</div>
+          <div class="search-meta">${n.title} · ${n.genre} · ⭐${n.rating}%</div>
+          <div class="search-desc">${n.desc}</div>
+        </div>
+      </div>`).join('');
+  }
+  // AI tip
+  searchTimer = setTimeout(() => {
+    fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:120,
+        system:'You are an assistant for a Japanese xianxia novel platform. Reply in Japanese in 1-2 sentences with a helpful recommendation based on the search.',
+        messages:[{role:'user', content:'検索クエリ: "' + q + '"'}]
+      })
+    }).then(r=>r.json()).then(d => {
+      const t = (d.content||[]).map(b=>b.text||'').join('');
+      if(t) { aiTip.style.display='flex'; document.getElementById('search-ai-text').textContent=t; }
+    }).catch(()=>{});
+  }, 800);
+}
+function setSearch(val) {
+  document.getElementById('search-input').value = val;
+  doSearch(val);
+}
+
+// ── LIBRARY PAGE ──
+function renderLibraryPage() {
+  const listEl = document.getElementById('library-list');
+  const titleEl = document.getElementById('lib-page-title');
+  if(titleEl) titleEl.textContent = 'マイライブラリ (' + library.length + ')';
+  if(library.length === 0) {
+    listEl.innerHTML = `<div class="empty-state"><div class="empty-icon">📚</div><div>ライブラリが空です</div><div style="font-size:12px;margin-top:6px;color:#444">お気に入りの小説を追加しよう</div></div>`;
+    return;
+  }
+  listEl.innerHTML = library.map(id => {
+    const n = NOVELS.find(x=>x.id===id);
+    if(!n) return '';
+    return `<div class="lib-item">
+      <div class="lib-cover" onclick="openNovel(${n.id})"><img src="${coverToImg(n.id)}" alt="${n.title}"></div>
+      <div class="lib-info" onclick="openNovel(${n.id})">
+        <div class="lib-title">${n.titleID}</div>
+        <div class="lib-author">${n.author}</div>
+        <span class="${n.status==='完結'?'badge-status-done':'badge-status-ongoing'}">${n.status}</span>
+      </div>
+      <button class="lib-remove" onclick="removeFromLib(${n.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+function removeFromLib(id) {
+  library = library.filter(x=>x!==id);
+  saveLibrary();
+  renderLibraryPage();
+}
+
+// ── HERO SLIDER ──
+function buildSlider() {
+  const container = document.getElementById('slider-container');
+  const dotsEl = document.getElementById('slider-dots');
+  container.innerHTML = '';
+  dotsEl.innerHTML = '';
+  BANNER_IDS.forEach((nid, i) => {
+    const n = NOVELS.find(x=>x.id===nid);
+    if(!n) return;
+    const coverSrc = coverToImg(n.id);
+    const div = document.createElement('div');
+    div.className = 'slide' + (i===0?' active':'');
+    div.id = 'slide-' + i;
+    div.innerHTML = `
+      <img src="${coverSrc}" alt="${n.title}" class="slide-bg" style="filter:blur(14px) brightness(.35) saturate(1.3);transform:scale(1.15)">
+      <div class="slide-gradient" style="background:${n.bannerBg};opacity:.6"></div>
+      <div class="slide-cover"><img src="${coverSrc}" alt="${n.title}"></div>
+      <div class="slide-content">
+        <div class="slide-badges">
+          <span class="badge-rating">👍 ${n.rating}%</span>
+          <span class="${n.status==='完結'?'badge-status-done':'badge-status-ongoing'}">${n.status}</span>
+        </div>
+        <div class="slide-title">${n.titleID}</div>
+        <div class="slide-desc">${n.desc}</div>
+        <button class="btn-read-now" onclick="openNovel(${n.id})">今すぐ読む</button>
+      </div>`;
+    container.appendChild(div);
+    const dot = document.createElement('button');
+    dot.className = 'dot' + (i===0?' active':'');
+    dot.onclick = () => goSlide(i);
+    dotsEl.appendChild(dot);
+  });
+  startSliderTimer();
+}
+
+function goSlide(idx) {
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));
+  const slide = document.getElementById('slide-'+idx);
+  if(slide) { slide.classList.add('active'); slide.style.animation='none'; slide.offsetHeight; slide.style.animation=''; }
+  document.querySelectorAll('.dot')[idx]?.classList.add('active');
+  sliderIdx = idx;
+}
+function slideNext() { goSlide((sliderIdx+1) % BANNER_IDS.length); resetSliderTimer(); }
+function slidePrev() { goSlide((sliderIdx-1+BANNER_IDS.length) % BANNER_IDS.length); resetSliderTimer(); }
+function startSliderTimer() { sliderTimer = setInterval(()=>goSlide((sliderIdx+1)%BANNER_IDS.length), 5000); }
+function resetSliderTimer() { clearInterval(sliderTimer); startSliderTimer(); }
+
+// ── NOVEL CARD HTML ──
+function novelCardHTML(n, rank) {
+  const badgeMap = {HOT:'badge-hot',TOP:'badge-top',NEW:'badge-new',CLASSIC:'badge-classic',PREMIUM:'badge-premium'};
+  return `<div class="novel-card" onclick="openNovel(${n.id})">
+    <div class="novel-cover-wrap">
+      <img src="${coverToImg(n.id)}" alt="${n.title}" width="130" height="175" loading="lazy">
+      <div class="novel-status-bar"><span class="${n.status==='完結'?'status-done':'status-ongoing'}">${n.status}</span></div>
+      ${rank ? `<div class="novel-rank">${rank}</div>` : ''}
+      <div class="novel-timer">⏱</div>
+      ${n.badge ? `<div class="novel-badge ${badgeMap[n.badge]||'badge-hot'}">${n.badge}</div>` : ''}
+    </div>
+    <div class="novel-rating">👍 ${n.rating}%</div>
+    <div class="novel-title">${n.titleID}</div>
+  </div>`;
+}
+
+// ── ANNOUNCEMENTS ──
+function buildAnnouncements() {
+  const el = document.getElementById('announcements');
+  const items = [
+    {id:4, title:'リッチ・フォー・ハイヤー – 狡猾なリッチの権力への台頭！', time:'5日前'},
+    {id:1, title:'Nine Star Hegemon Body Art – チャプター4800が公開されました！', time:'2日前'},
+  ];
+  el.innerHTML = items.map(a => {
+    const n = NOVELS.find(x=>x.id===a.id);
+    return `<div class="announce-item" onclick="openNovel(${a.id})">
+      <div class="announce-thumb"><img src="${coverToImg(a.id)}" alt=""></div>
+      <div><div class="announce-title">${a.title}</div><div class="announce-time">${a.time}</div></div>
+      <span style="color:#555;font-size:16px">›</span>
+    </div>`;
+  }).join('');
+}
+
+// ── GENRE FILTER ──
+function filterGenre(genre) {
+  const filtered = genre === '完結' ? NOVELS.filter(n=>n.status==='完結') : NOVELS.filter(n=>n.genre===genre||n.tags.includes(genre));
+  goPage('search');
+  document.getElementById('search-input').value = genre;
+  document.getElementById('search-chips').style.display = 'none';
+  document.getElementById('search-results').innerHTML = filtered.map(n => `
+    <div class="search-result" onclick="openNovel(${n.id})">
+      <div class="search-result-cover"><img src="${coverToImg(n.id)}" alt="${n.title}"></div>
+      <div>
+        <div class="search-title">${n.titleID}</div>
+        <div class="search-meta">${n.title} · ${n.genre}</div>
+        <div class="search-desc">${n.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── INIT ──
+function init() {
+  buildSlider();
+  buildAnnouncements();
+  // Popular (by views desc)
+  const popular = [...NOVELS].sort((a,b)=>parseFloat(b.views)-parseFloat(a.views)).slice(0,8);
+  document.getElementById('popular-scroll').innerHTML = popular.map((n,i)=>novelCardHTML(n,i+1)).join('');
+  // New releases
+  const newRel = NOVELS.slice(3,11);
+  document.getElementById('new-scroll').innerHTML = newRel.map(n=>novelCardHTML(n,null)).join('');
+  // Completed
+  const completed = NOVELS.filter(n=>n.status==='完結');
+  document.getElementById('completed-scroll').innerHTML = completed.map(n=>novelCardHTML(n,null)).join('');
+  // Library badge
+  saveLibrary();
+}
+
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
